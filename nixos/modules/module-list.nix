@@ -252,6 +252,7 @@
   ./services/system/kerberos.nix
   ./services/system/nscd.nix
   ./services/system/uptimed.nix
+  ./services/system/cgconfig.nix
   ./services/torrent/deluge.nix
   ./services/torrent/transmission.nix
   ./services/ttys/gpm.nix
