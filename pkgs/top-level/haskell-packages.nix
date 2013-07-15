@@ -771,6 +771,8 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   FerryCore = callPackage ../development/libraries/haskell/FerryCore {};
 
+  fft = callPackage ../development/libraries/haskell/fft { fftw3 = pkgs.fftw; };
+
   funcmp = callPackage ../development/libraries/haskell/funcmp {};
 
   feed = callPackage ../development/libraries/haskell/feed {};
@@ -2723,6 +2725,8 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
   };
 
   darcs = callPackage ../applications/version-management/darcs {};
+
+  htune = callPackage ../applications/audio/htune {};
 
   idris_plain = callPackage ../development/compilers/idris {
     parsers = self.parsers_0_10_3;
