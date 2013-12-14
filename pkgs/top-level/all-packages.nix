@@ -3805,6 +3805,8 @@ let
 
   splint = callPackage ../development/tools/analysis/splint { };
 
+  spot = callPackage ../development/tools/analysis/spot { };
+
   stm32flash = callPackage ../development/tools/misc/stm32flash { };
 
   strace = callPackage ../development/tools/misc/strace { };
