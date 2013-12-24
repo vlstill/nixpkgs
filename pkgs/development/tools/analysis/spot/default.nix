@@ -14,5 +14,6 @@ stdenv.mkDerivation {
     description = "Spot is an object-oriented model checking library written in C++.";
     homepage = http://spot.lip6.fr/wiki/;
     license = "GPL";
+    maintainers = with stdenv.lib.maintainers; [ vlstill ];
   };
 }
