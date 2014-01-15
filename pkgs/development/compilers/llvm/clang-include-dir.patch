@@ -1,0 +1,17 @@
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -42,8 +42,12 @@ if( CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR )
+   include(HandleLLVMOptions)
+ 
+   set(PACKAGE_VERSION "${LLVM_PACKAGE_VERSION}")
+-
+-  set(LLVM_MAIN_INCLUDE_DIR "${LLVM_MAIN_SRC_DIR}/include")
++  
++  if ( LLVM_MAIN_SRC_DIR )
++      set(LLVM_MAIN_INCLUDE_DIR "${LLVM_MAIN_SRC_DIR}/include")
++  else()
++      exec_program("${PATH_TO_LLVM_CONFIG} --includedir" OUTPUT_VARIABLE LLVM_MAIN_INCLUDE_DIR)
++  endif()
+   set(LLVM_BINARY_DIR ${CMAKE_BINARY_DIR})
+ 
+   set(CMAKE_INCLUDE_CURRENT_DIR ON)
