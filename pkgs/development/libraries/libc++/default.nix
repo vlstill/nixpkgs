@@ -1,21 +1,34 @@
-{ stdenv, fetchsvn, cmake, libunwind }:
+{ stdenv, fetchsvn, fetchurl, cmake, libunwind, version }:
+
+assert version == "3.4" || version == "190100";
 
 let rev = "190100"; in
 
 stdenv.mkDerivation rec {
-  name = "libc++-pre${rev}";
+  name = if version == rev
+          then "libc++-pre${rev}"
+          else "libc++-${version}";
 
-  src = fetchsvn {
-    url = "http://llvm.org/svn/llvm-project/libcxx/trunk";
-    inherit rev;
-    sha256 = "0hnfvzzrkj797kp9sk2yncvbmiyx0d72k8bys3z7l6i47d37xv03";
-  };
+  src = if version == rev
+    then fetchsvn {
+      url = "http://llvm.org/svn/llvm-project/libcxx/trunk";
+      inherit rev;
+      sha256 = "0hnfvzzrkj797kp9sk2yncvbmiyx0d72k8bys3z7l6i47d37xv03";
+    } else fetchurl {
+      url = "http://llvm.org/releases/3.4/libcxx-3.4.src.tar.gz";
+      sha256 = "1sqd5qhqj7qnn9zjxx9bv7ky4f7xgmh9sbgd53y1kszhg41217xx";
+    };
 
-  cxxabi = fetchsvn {
-    url = "http://llvm.org/svn/llvm-project/libcxxabi/trunk";
-    inherit rev;
-    sha256 = "1kdyvngwd229cgmcqpawaf0qizas8bqc0g8s08fmbgwsrh1qrryp";
-  };
+  cxxabi = if version == rev
+    then fetchsvn {
+      url = "http://llvm.org/svn/llvm-project/libcxxabi/trunk";
+      inherit rev;
+      sha256 = "1kdyvngwd229cgmcqpawaf0qizas8bqc0g8s08fmbgwsrh1qrryp";
+    } else fetchsvn {
+      url = "http://llvm.org/svn/llvm-project/libcxxabi/trunk";
+      rev = "199249";
+      sha256 = "0h1x1s40x5r65ar53rv34lmgcfil3zxaknqr64dka1mz29xhhrxy";
+    };
 
   buildInputs = [ cmake ];
 
