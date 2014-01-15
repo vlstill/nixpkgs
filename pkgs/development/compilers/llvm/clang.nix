@@ -1,7 +1,9 @@
-{ stdenv, fetchurl, perl, groff, llvm, cmake, libxml2, python }:
+{ stdenv, fetchurl, perl, groff, llvm_versioned, cmake, libxml2, python, version }:
+
+assert version == "3.4" || version == "3.3";
 
 let
-  version = "3.3";
+  llvm = llvm_versioned version;
   gccReal = if (stdenv.gcc.gcc or null) == null then stdenv.gcc else stdenv.gcc.gcc;
 in
 
@@ -11,7 +13,12 @@ stdenv.mkDerivation {
   buildInputs = [ perl llvm groff cmake libxml2 python ];
 
   patches = [ ./clang-tablegen-dir.patch ] ++
-            stdenv.lib.optional (stdenv.gcc.libc != null) ./clang-purity.patch;
+            stdenv.lib.optional (stdenv.gcc.libc != null)
+                (if version == "3.3" then ./clang-purity-33.patch
+                                    else ./clang-purity-34.patch)
+            ++
+            stdenv.lib.optional (version == "3.4") ./clang-include-dir.patch;
+
 
   cmakeFlags = [
     "-DCLANG_PATH_TO_LLVM_BUILD=${llvm}"
@@ -24,10 +31,15 @@ stdenv.mkDerivation {
 
   enableParallelBuilding = true;
 
-  src = fetchurl {
-      url = "http://llvm.org/releases/${version}/cfe-${version}.src.tar.gz";
-      sha256 = "15mrvw43s4frk1j49qr4v5viq68h8qlf10qs6ghd6mrsmgj5vddi";
-  };
+  src = if version == "3.4"
+    then fetchurl {
+        url = "http://llvm.org/releases/${version}/clang-${version}.src.tar.gz";
+        sha256 = "06rb4j1ifbznl3gfhl98s7ilj0ns01p7y7zap4p7ynmqnc6pia92";
+    } else /* 3.3 */ fetchurl {
+        url = "http://llvm.org/releases/${version}/cfe-${version}.src.tar.gz";
+        sha256 = "15mrvw43s4frk1j49qr4v5viq68h8qlf10qs6ghd6mrsmgj5vddi";
+    };
+
 
   passthru = { gcc = stdenv.gcc.gcc; };
 
