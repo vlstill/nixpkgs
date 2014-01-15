@@ -2293,34 +2293,61 @@ let
 
   ccl = builderDefsPackage ../development/compilers/ccl {};
 
-  clangUnwrapped = callPackage ../development/compilers/llvm/clang.nix {
+  clangUnwrapped_versioned = version: callPackage ../development/compilers/llvm/clang.nix {
+    version = version;
     stdenv = if stdenv.isDarwin
       then stdenvAdapters.overrideGCC stdenv gccApple
       else stdenvAdapters.overrideGCC stdenv gcc47;
   };
+  clangUnwrapped = clangUnwrapped_33;
+  clangUnwrapped_33 = clangUnwrapped_versioned "3.3";
+  clangUnwrapped_34 = clangUnwrapped_versioned "3.4";
 
-  clang = wrapClang clangUnwrapped;
+  clang = clang_33;
+  clang_versioned = version: wrapClang (clangUnwrapped_versioned version);
+  clang_33 = clang_versioned "3.3";
+  clang_34 = clang_versioned "3.4";
 
-  libcxxLLVM = callPackage ../development/compilers/llvm { stdenv = libcxxStdenv; version="3.3"; };
-  clangSelf = clangWrapSelf (callPackage ../development/compilers/llvm/clang.nix {
-     stdenv = libcxxStdenv;
-     llvm = libcxxLLVM;
+  libcxxLLVM_versioned = version: callPackage ../development/compilers/llvm {
+      stdenv = libcxxStdenv;
+      version = version;
+  };
+  libcxxLLVM_33 = libcxxLLVM_versioned "3.3";
+  libcxxLLVM_34 = libcxxLLVM_versioned "3.4";
+  libcxxLLVM = libcxxLLVM_33;
+
+  clangSelf_versioned = version: clangWrapSelf_versioned version (callPackage ../development/compilers/llvm/clang.nix {
+     stdenv = libcxxStdenv_versioned version;
+     llvm_versioned = libcxxLLVM_versioned;
+     version = version;
   });
+  clangSelf_33 = clangSelf_versioned "3.3";
+  clangSelf_34 = clangSelf_versioned "3.4";
+  clangSelf = clangSelf_33;
 
-  clangWrapSelf = build: (import ../build-support/clang-wrapper) {
+  clangWrapSelf_versioned = version: build: (import ../build-support/clang-wrapper) {
       clang = build;
-      stdenv = clangStdenv;
+      stdenv = clangStdenv_versioned version;
       libc = glibc;
       binutils = binutils_gold;
       shell = bash;
-      inherit libcxx coreutils zlib;
+      libcxx = libcxx_versioned (if version == "3.3" then "190100" else version);
+      inherit coreutils zlib;
       nativeTools = false;
       nativeLibc = false;
   };
 
   #Use this instead of stdenv to build with clang
-  clangStdenv = lowPrio (stdenvAdapters.overrideGCC stdenv clang);
-  libcxxStdenv = stdenvAdapters.overrideGCC stdenv (clangWrapSelf clangUnwrapped);
+  clangStdenv_versioned = version: lowPrio (stdenvAdapters.overrideGCC stdenv (clang_versioned version) );
+  clangStdenv_33 = clangStdenv_versioned "3.3";
+  clangStdenv_34 = clangStdenv_versioned "3.4";
+  clangStdenv = clangStdenv_33;
+
+  libcxxStdenv_versioned = version: stdenvAdapters.overrideGCC stdenv
+                              (clangWrapSelf_versioned version (clangUnwrapped_versioned version));
+  libcxxStdenv_33 = libcxxStdenv_versioned "3.3";
+  libcxxStdenv_34 = libcxxStdenv_versioned "3.4";
+  libcxxStdenv = libcxxStdenv_33;
 
   clean = callPackage ../development/compilers/clean { };
 
@@ -2906,13 +2933,17 @@ let
   lessc = callPackage ../development/compilers/lessc { };
 
   llvm = llvm_33; # deprecated, depend on llvm_* directly
-  llvm_34 = callPackage ../development/compilers/llvm {
-    version = "3.4";
+  llvm_versioned = version: callPackage ../development/compilers/llvm {
+    version = version;
     stdenv = if stdenv.isDarwin
       then stdenvAdapters.overrideGCC stdenv gccApple
       else stdenv;
   };
-  llvm_33 = llvm_34.override { version = "3.3"; };
+  llvm_34 = llvm_versioned "3.4";
+  llvm_33 = llvm_versioned "3.3";
+
+  lldb_34 = callPackage ../development/tools/misc/lldb { version = "3.4"; };
+  lldb = lldb_34;
 
   mentorToolchains = recurseIntoAttrs (
     callPackage_i686 ../development/compilers/mentor {}
@@ -3615,7 +3646,13 @@ let
 
   csslint = callPackage ../development/web/csslint { };
 
-  libcxx = callPackage ../development/libraries/libc++ { stdenv = pkgs.clangStdenv; };
+  libcxx_versioned = version: callPackage ../development/libraries/libc++ {
+    version = version;
+    stdenv = pkgs.clangStdenv_versioned (if version == "190100" then "3.3" else version);
+  };
+  libcxx = libcxx_svn;
+  libcxx_svn = libcxx_versioned "190100";
+  libcxx_34  = libcxx_versioned "3.4";
 
   dejagnu = callPackage ../development/tools/misc/dejagnu { };
 
