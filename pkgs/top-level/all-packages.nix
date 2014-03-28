@@ -2521,6 +2521,7 @@ let
 
   clang = wrapClang llvmPackages.clang;
 
+  clang_trunk = wrapClang llvmPackages_trunk.clang;
   clang_34 = wrapClang llvmPackages_34.clang;
   clang_33 = wrapClang (clangUnwrapped llvm_33 ../development/compilers/llvm/3.3/clang.nix);
   clang_32 = wrapClang (clangUnwrapped llvm_32 ../development/compilers/llvm/3.2/clang.nix);
@@ -2539,10 +2540,11 @@ let
   };
 
   clangSelf = clangWrapSelf llvmPackagesSelf.clang;
+  clangSelf_trunk = clangWrapSelf llvmPackagesSelf_trunk.clang;
 
   clangWrapSelf = build: (import ../build-support/clang-wrapper) {
     clang = build;
-    stdenv = clangStdenv;
+    stdenv = stdenvAdapters.overrideGCC stdenv (wrapClang build);
     libc = glibc;
     binutils = binutils;
     shell = bash;
@@ -3070,6 +3072,7 @@ let
 
   llvm = llvmPackages.llvm;
 
+  llvm_trunk = llvmPackages_trunk.llvm;
   llvm_34 = llvmPackages_34.llvm;
   llvm_33 = llvm_v ../development/compilers/llvm/3.3/llvm.nix;
   llvm_32 = llvm_v ../development/compilers/llvm/3.2;
@@ -3092,6 +3095,13 @@ let
     isl = isl_0_12;
   });
   llvmPackagesSelf = import ../development/compilers/llvm/3.4 { inherit newScope fetchurl; isl = isl_0_12; stdenv = libcxxStdenv; };
+
+  llvmPackages_trunk = llvm_v ../development/compilers/llvm/trunk;
+  llvmPackagesSelf_trunk = import ../development/compilers/llvm/trunk {
+      inherit newScope fetchsvn;
+      isl = isl_0_12;
+      stdenv = stdenvAdapters.overrideGCC stdenv (clangWrapSelf llvmPackages_trunk.clang);
+  };
 
   mentorToolchains = recurseIntoAttrs (
     callPackage_i686 ../development/compilers/mentor {}
