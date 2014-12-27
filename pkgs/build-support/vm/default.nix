@@ -1033,6 +1033,32 @@ rec {
       unifiedSystemDir = true;
     };
 
+    fedora21i386 = {
+      name = "fedora-21-i386";
+      fullName = "Fedora 21 (i386)";
+      packagesList = fetchurl {
+        url = mirror://fedora/linux/releases/21/Everything/i386/os/repodata/a6ad1140adeef65bbc1fdcc7f8f2b356f0d20c71bbe3f1625038e7f43fc44780-primary.xml.gz;
+        sha256 = "1027qhzz9rrqa1ig3qxvf46d5w2nngrgiiyw3yy5pxpfmm013bd6";
+      };
+      urlPrefix = mirror://fedora/linux/releases/21/Everything/i386/os;
+      archs = ["noarch" "i386" "i586" "i686"];
+      packages = commonFedoraPackages ++ [ "cronie" "util-linux" ];
+      unifiedSystemDir = true;
+    };
+
+    fedora21x86_64 = {
+      name = "fedora-21-x86_64";
+      fullName = "Fedora 21 (x86_64)";
+      packagesList = fetchurl {
+        url = mirror://fedora/linux/releases/21/Everything/x86_64/os/repodata/e2a28baab2ea4632fad93f9f28144cda3458190888fdf7f2acc9bc289f397e96-primary.xml.gz;
+        sha256 = "15ky76gjig69mkrggzc810cmhd6s9ha2i7rzv7x34ipanam8p8p2";
+      };
+      urlPrefix = mirror://fedora/linux/releases/21/Everything/x86_64/os;
+      archs = ["noarch" "x86_64"];
+      packages = commonFedoraPackages ++ [ "cronie" "util-linux" ];
+      unifiedSystemDir = true;
+    };
+
     opensuse103i386 = {
       name = "opensuse-10.3-i586";
       fullName = "openSUSE 10.3 (i586)";
